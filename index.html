@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Mobile Dialer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            transition: border 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            flex: 1;
+            min-width: 100px;
+            background: #f8f9ff;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .numbers-list {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .number-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+
+        .number-item:last-child {
+            border-bottom: none;
+        }
+
+        .number-item:active {
+            background: #f8f9ff;
+        }
+
+        .number-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+        }
+
+        .number-link {
+            flex: 1;
+            text-decoration: none;
+            color: #333;
+            font-size: 18px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .call-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-called {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .filter-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .refresh-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+                padding-bottom: 80px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .number-link {
+                font-size: 16px;
+            }
+
+            .btn {
+                font-size: 12px;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📞 Smart Mobile Dialer</h1>
+            
+            <div id="loadingState" class="loading">
+                Loading numbers...
+            </div>
+
+            <div id="errorState" style="display: none;"></div>
+
+            <div id="mainContent" style="display: none;">
+                <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search numbers...">
+
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">All</button>
+                    <button class="filter-tab" data-filter="pending">Pending</button>
+                    <button class="filter-tab" data-filter="called">Called</button>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-label">Total</div>
+                        <div class="stat-value" id="totalCount">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Called</div>
+                        <div class="stat-value" id="calledCount">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Pending</div>
+                        <div class="stat-value" id="pendingCount">0</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" id="selectAllBtn">Select All</button>
+                    <button class="btn btn-secondary" id="markCalledBtn">Mark Called</button>
+                    <button class="btn btn-danger" id="unmarkCalledBtn">Unmark Called</button>
+                    <button class="btn btn-secondary" id="resetBtn">Reset All</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="numbers-list" id="numbersList">
+            <div class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <p>Loading numbers...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-bar">
+        <button class="btn btn-primary refresh-btn" id="refreshBtn">🔄 Refresh Numbers</button>
+        <button class="btn btn-primary" id="exportBtn">📥 Export Progress</button>
+        <button class="btn btn-secondary" id="importBtn">📤 Import Progress</button>
+    </div>
+
+    <script>
+        const NUMBERS_URL = 'http://aryantidke.me/call/numbers.txt';
+        const STORAGE_KEY = 'dialerProgress';
+        
+        let numbers = [];
+        let calledNumbers = new Set();
+        let currentFilter = 'all';
+
+        const searchBox = document.getElementById('searchBox');
+        const numbersList = document.getElementById('numbersList');
+        const totalCount = document.getElementById('totalCount');
+        const calledCount = document.getElementById('calledCount');
+        const pendingCount = document.getElementById('pendingCount');
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        const markCalledBtn = document.getElementById('markCalledBtn');
+        const unmarkCalledBtn = document.getElementById('unmarkCalledBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const importBtn = document.getElementById('importBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        const loadingState = document.getElementById('loadingState');
+        const errorState = document.getElementById('errorState');
+        const mainContent = document.getElementById('mainContent');
+
+        // Auto-load on page load
+        window.addEventListener('load', () => {
+            loadNumbersFromURL();
+        });
+
+        async function loadNumbersFromURL() {
+            try {
+                loadingState.style.display = 'block';
+                errorState.style.display = 'none';
+                mainContent.style.display = 'none';
+
+                const response = await fetch(NUMBERS_URL);
+                if (!response.ok) throw new Error('Failed to fetch numbers');
+                
+                const text = await response.text();
+                numbers = text.split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line && /\d/.test(line));
+
+                if (numbers.length === 0) {
+                    throw new Error('No valid numbers found in file');
+                }
+
+                // Load saved progress from localStorage
+                loadProgress();
+
+                loadingState.style.display = 'none';
+                mainContent.style.display = 'block';
+                renderNumbers();
+            } catch (error) {
+                loadingState.style.display = 'none';
+                errorState.style.display = 'block';
+                errorState.className = 'error-message';
+                errorState.innerHTML = `
+                    <strong>Error loading numbers:</strong><br>
+                    ${error.message}<br>
+                    <button class="btn btn-primary" onclick="loadNumbersFromURL()" style="margin-top: 10px;">
+                        Try Again
+                    </button>
+                `;
+                numbersList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">❌</div>
+                        <p>Could not load numbers</p>
+                    </div>
+                `;
+            }
+        }
+
+        refreshBtn.addEventListener('click', loadNumbersFromURL);
+
+        searchBox.addEventListener('input', (e) => {
+            renderNumbers(e.target.value);
+        });
+
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                filterTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentFilter = tab.dataset.filter;
+                renderNumbers(searchBox.value);
+            });
+        });
+
+        selectAllBtn.addEventListener('click', () => {
+            const checkboxes = document.querySelectorAll('.number-checkbox');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            checkboxes.forEach(cb => cb.checked = !allChecked);
+        });
+
+        markCalledBtn.addEventListener('click', () => {
+            const checkboxes = document.querySelectorAll('.number-checkbox:checked');
+            checkboxes.forEach(cb => {
+                calledNumbers.add(cb.dataset.number);
+                cb.checked = false;
+            });
+            saveProgress();
+            renderNumbers(searchBox.value);
+        });
+
+        unmarkCalledBtn.addEventListener('click', () => {
+            const checkboxes = document.querySelectorAll('.number-checkbox:checked');
+            checkboxes.forEach(cb => {
+                calledNumbers.delete(cb.dataset.number);
+                cb.checked = false;
+            });
+            saveProgress();
+            renderNumbers(searchBox.value);
+        });
+
+        resetBtn.addEventListener('click', () => {
+            if (confirm('Reset all call status? This will mark all numbers as pending.')) {
+                calledNumbers.clear();
+                saveProgress();
+                renderNumbers(searchBox.value);
+            }
+        });
+
+        exportBtn.addEventListener('click', () => {
+            const data = {
+                numbers,
+                calledNumbers: Array.from(calledNumbers),
+                exportDate: new Date().toISOString()
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `call-progress-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        importBtn.addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            const data = JSON.parse(event.target.result);
+                            if (data.calledNumbers) {
+                                calledNumbers = new Set(data.calledNumbers);
+                                saveProgress();
+                                renderNumbers();
+                                alert('Progress imported successfully!');
+                            }
+                        } catch (err) {
+                            alert('Invalid file format');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        });
+
+        function renderNumbers(searchTerm = '') {
+            const filtered = numbers.filter(num => {
+                const matchesSearch = num.toLowerCase().includes(searchTerm.toLowerCase());
+                const isCalled = calledNumbers.has(num);
+                
+                if (currentFilter === 'called') return matchesSearch && isCalled;
+                if (currentFilter === 'pending') return matchesSearch && !isCalled;
+                return matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                numbersList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <p>${numbers.length === 0 ? 'No numbers loaded' : 'No numbers found'}</p>
+                    </div>
+                `;
+            } else {
+                numbersList.innerHTML = filtered.map(num => {
+                    const isCalled = calledNumbers.has(num);
+                    return `
+                        <div class="number-item">
+                            <input type="checkbox" class="number-checkbox" data-number="${num}">
+                            <a href="tel:${num}" class="number-link">
+                                <div class="call-icon">📞</div>
+                                <span>${num}</span>
+                            </a>
+                            <span class="status-badge ${isCalled ? 'status-called' : 'status-pending'}">
+                                ${isCalled ? 'Called' : 'Pending'}
+                            </span>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            updateStats();
+        }
+
+        function updateStats() {
+            totalCount.textContent = numbers.length;
+            calledCount.textContent = calledNumbers.size;
+            pendingCount.textContent = numbers.length - calledNumbers.size;
+        }
+
+        function saveProgress() {
+            const data = {
+                calledNumbers: Array.from(calledNumbers),
+                lastUpdated: new Date().toISOString()
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function loadProgress() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    calledNumbers = new Set(data.calledNumbers || []);
+                }
+            } catch (error) {
+                console.error('Error loading progress:', error);
+            }
+        }
+    </script>
+</body>
+</html>
