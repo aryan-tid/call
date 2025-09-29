@@ -335,7 +335,7 @@
     </div>
 
     <script>
-        const NUMBERS_URL = 'http://aryantidke.me/call/numbers.txt';
+        const NUMBERS_URL = 'https://aryantidke.me/call/numbers.txt';
         const STORAGE_KEY = 'dialerProgress';
         
         let numbers = [];
@@ -517,14 +517,19 @@
                     </div>
                 `;
             } else {
-                numbersList.innerHTML = filtered.map(num => {
+                numbersList.innerHTML = filtered.map((num, index) => {
                     const isCalled = calledNumbers.has(num);
+                    const originalIndex = numbers.indexOf(num);
+                    const serialNumber = 5145 + originalIndex;
                     return `
                         <div class="number-item">
                             <input type="checkbox" class="number-checkbox" data-number="${num}">
                             <a href="tel:${num}" class="number-link">
                                 <div class="call-icon">📞</div>
-                                <span>${num}</span>
+                                <div>
+                                    <div style="font-size: 11px; color: #999; margin-bottom: 2px;">#${serialNumber}</div>
+                                    <span>${num}</span>
+                                </div>
                             </a>
                             <span class="status-badge ${isCalled ? 'status-called' : 'status-pending'}">
                                 ${isCalled ? 'Called' : 'Pending'}
